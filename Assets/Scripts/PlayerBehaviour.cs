@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
-    [SerializeField] float moveSpeed, _moveSpeed, jumpSpeed, gravityMultiplier, inputHorizontal, inputVertical, dragGround, dragAir;
+    [SerializeField] float moveSpeed, _moveSpeed, jumpSpeed, gravityMultiplier, inputHorizontal, dragGround, dragAir, screenLimitLeft;
+    [SerializeField] BackgroundManager BackgroundManager;
+    public float screenLimitRight;
 
     Rigidbody2D rb;
     public bool isGrounded, facingRight;
 
-    public List<GameObject> weaponList = new List<GameObject>();
-    GameObject spear, sword;
-
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        PrepareWeapons();
         _moveSpeed = 5;
         jumpSpeed = 12;
         gravityMultiplier = 2.5f;
         dragGround = 4;
         dragAir = 1;
+        screenLimitLeft = -16;
+        screenLimitRight = 10f;
         facingRight = true;
     }
 
@@ -28,15 +28,12 @@ public class PlayerBehaviour : MonoBehaviour
     void Update()
     {
         MovementHandler();
+        ScreenBorders();
         JumpHandler();
         FallHandler();
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            WeaponSwap(1);
-        }
     }
 
-    public void MovementHandler()
+    void MovementHandler()
     {
         inputHorizontal = Input.GetAxisRaw("Horizontal") * moveSpeed;
         
@@ -54,7 +51,23 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    public void JumpHandler()
+    void ScreenBorders()
+    {
+        if(transform.position.x < screenLimitLeft)
+        {
+            transform.position = new Vector3(screenLimitLeft, transform.position.y, 0);
+        }
+        else if (BackgroundManager.CanMove() && transform.position.x > screenLimitRight)
+        {
+            transform.position = new Vector3(screenLimitRight, transform.position.y, 0);
+        }
+        else if (!BackgroundManager.CanMove() && transform.position.x > -screenLimitLeft)
+        {
+            transform.position = new Vector3(-screenLimitLeft, transform.position.y, 0);
+        }
+    }
+
+    void JumpHandler()
     {
         if (isGrounded)
         {
@@ -72,7 +85,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    public void FallHandler()
+    void FallHandler()
     {
         if(rb.velocity.y < 0)
         {
@@ -97,33 +110,6 @@ public class PlayerBehaviour : MonoBehaviour
         if(other.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
-        }
-    }
-
-    void PrepareWeapons()
-    {
-        spear = weaponList[0];
-    }
-
-    void WeaponSwap(int i)
-    {
-        foreach (GameObject item in weaponList)
-        {
-            item.SetActive(false);
-        }
-        switch (i)
-        {
-            case 1:
-            weaponList[0].SetActive(true);
-            break;
-
-            case 2:
-            weaponList[1].SetActive(true);
-            break;
-            
-            default:
-            weaponList[0].SetActive(true);
-            break;
         }
     }
 }

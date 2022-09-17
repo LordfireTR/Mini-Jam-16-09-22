@@ -5,7 +5,7 @@ using UnityEngine;
 public class SwordBehaviour : MonoBehaviour
 {
     Collider2D swordCollider;
-    float swordSwingRad, swingRate;
+    float swordSwingRad, swingRate, baseDamage = 25;
     Quaternion swordIdle, swordActive;
     // Start is called before the first frame update
     void Start()
@@ -26,17 +26,31 @@ public class SwordBehaviour : MonoBehaviour
 
     public void SwordHandler(float t)
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0) && swingRate == 0)
         {
             swingRate += 10 * Time.deltaTime;
             swordCollider.enabled = true;
-            transform.rotation = Quaternion.Slerp(swordIdle, swordActive, t);
+            transform.localRotation = Quaternion.Slerp(swordIdle, swordActive, t);
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (swingRate > 0 && swingRate < 1)
         {
-            transform.rotation = swordIdle;
+            swingRate += 10 * Time.deltaTime;
+            transform.localRotation = Quaternion.Slerp(swordIdle, swordActive, t);
+        }
+        else if (swingRate >= 1)
+        {
+            transform.localRotation = swordIdle;
             swordCollider.enabled = false;
             swingRate = 0;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage);
+            Debug.Log("hit!");
         }
     }
 }
