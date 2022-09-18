@@ -5,7 +5,7 @@ using UnityEngine;
 public class WeaponHandler : MonoBehaviour
 {
     public List<GameObject> weaponList = new List<GameObject>();
-    GameObject spear, sword;
+    GameObject spear, sword, magic;
     
     void Start()
     {
@@ -22,6 +22,10 @@ public class WeaponHandler : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             WeaponSwap(2);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            WeaponSwap(3);
         }
     }
 
@@ -41,6 +45,10 @@ public class WeaponHandler : MonoBehaviour
             weaponList[1].SetActive(true);
             break;
             
+            case 3:
+            weaponList[2].SetActive(true);
+            break;
+
             default:
             weaponList[0].SetActive(true);
             break;

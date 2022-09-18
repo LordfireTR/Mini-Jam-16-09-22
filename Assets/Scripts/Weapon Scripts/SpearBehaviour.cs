@@ -8,7 +8,8 @@ public class SpearBehaviour : MonoBehaviour
     [SerializeField] Rigidbody2D playerRb;
 
     Vector3 spearOffset;
-    float baseDamage = 10, attackTime, _attackTime = 0.15f;
+    float baseDamage = 10, attackTime, _attackTime = 0.15f, inputTime, _inputTime;
+    bool shouldAttack = false;
 
     void Start()
     {
@@ -16,17 +17,40 @@ public class SpearBehaviour : MonoBehaviour
         spearCollider.enabled = false;
         spearOffset =   new Vector3(1, 0.1f, 0);
         attackTime = _attackTime;
+        _inputTime = 0.1f;
     }
 
-    // Update is called once per frame
     void Update()
+    {
+        InputHandler();
+    }
+
+    void FixedUpdate()
     {
         SpearHandler();
     }
 
+    void InputHandler()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            shouldAttack = true;
+            inputTime = _inputTime;
+        }
+
+        if (inputTime <= 0)
+        {
+            shouldAttack = false;
+        }
+        else
+        {
+            inputTime -= Time.deltaTime;
+        }
+    }
+
     public void SpearHandler()
     {
-        if(Input.GetMouseButtonDown(0) && attackTime == _attackTime)
+        if(shouldAttack && attackTime == _attackTime)
         {
             spearCollider.enabled = true;
             transform.localPosition += spearOffset;
@@ -49,8 +73,9 @@ public class SpearBehaviour : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            float relativeVelocity = other.gameObject.GetComponent<Rigidbody2D>().velocity.x + playerRb.velocity.x;
-            other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage * Mathf.Abs(1 + relativeVelocity / 4.0f));
+            float relativeVelocity = other.gameObject.GetComponent<Rigidbody2D>().velocity.x - playerRb.velocity.x;
+            other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage * Mathf.Abs(1 - relativeVelocity / 4.0f));
+            Debug.Log("dmg mult: " + Mathf.Abs(1 - relativeVelocity / 4.0f) + " relative vel: " + relativeVelocity);
         }
     }
 }

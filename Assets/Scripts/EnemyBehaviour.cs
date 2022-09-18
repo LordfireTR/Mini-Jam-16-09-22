@@ -22,7 +22,7 @@ public class EnemyBehaviour : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         HandleDeath();
         HandleMovement();
@@ -31,6 +31,7 @@ public class EnemyBehaviour : MonoBehaviour
     public void TakeDamage(float dmg)
     {
         health -= Mathf.Round(dmg * Mathf.Pow(armorMultiplier, armor));
+        Debug.Log(Mathf.Round(dmg * Mathf.Pow(armorMultiplier, armor)));
     }
 
     public void HandleDeath()

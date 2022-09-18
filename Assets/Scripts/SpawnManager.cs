@@ -11,7 +11,8 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         spawnPosY = playerTransform.position.y;
-        SpawnEnemy(0);
+        InvokeRepeating("SpawnEnemy", 1, 5);
+        
     }
 
     // Update is called once per frame
@@ -20,8 +21,9 @@ public class SpawnManager : MonoBehaviour
         
     }
 
-    void SpawnEnemy(int index)
+    void SpawnEnemy()
     {
+        int index = Random.Range(0,Enemies.Count);
         Instantiate(Enemies[index], SpawnPosition(), Enemies[index].transform.rotation, transform);
     }
 
