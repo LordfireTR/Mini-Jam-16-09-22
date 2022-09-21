@@ -6,13 +6,14 @@ public class SwordBehaviour : MonoBehaviour
 {
     Collider2D swordCollider;
     float swordSwingRad, swingRate, baseDamage = 25, inputTime, _inputTime;
+    [SerializeField] float hitImpact;
     bool shouldAttack;
     Quaternion swordIdle, swordActive;
     // Start is called before the first frame update
     void Start()
     {
         swordCollider = GetComponent<Collider2D>();
-        swordCollider.enabled = true;
+        swordCollider.enabled = false;
         swordSwingRad = 90;
         swordIdle = transform.localRotation;
         swordActive = swordIdle;
@@ -35,12 +36,14 @@ public class SwordBehaviour : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             shouldAttack = true;
+            swordCollider.enabled = true;
             inputTime = _inputTime;
         }
 
         if (inputTime <= 0)
         {
             shouldAttack = false;
+            swordCollider.enabled = false;
         }
         else
         {
@@ -74,6 +77,7 @@ public class SwordBehaviour : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy"))
         {
             other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage);
+            other.gameObject.GetComponent<Rigidbody2D>().AddForce(hitImpact * ((Vector3.right * (other.transform.position.x - transform.position.x)).normalized + 0.2f * Vector3.up), ForceMode2D.Impulse);
         }
     }
 }

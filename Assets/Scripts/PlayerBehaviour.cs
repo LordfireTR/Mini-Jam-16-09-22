@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
-    [SerializeField] float moveSpeed, _moveSpeed, jumpSpeed, gravityMultiplier, inputHorizontal, dragGround, dragAir, screenLimitLeft, screenLimitBottom;
-    //[SerializeField] BackgroundManager BackgroundManager;
+    [SerializeField] float moveSpeed, _moveSpeed, jumpSpeed, gravityMultiplier, inputHorizontal, dragGround, dragAir, screenLimitLeft, screenLimitBottom, maxHealth, currentHealth;
+    [SerializeField] HealthBarBehaviour HealthBarBehaviour;
     [SerializeField] Transform camTransform;
+    AudioSource AudioSource;
     public float screenLimitRight;
-    float jumpBoolTimer, _jumpBoolTimer;
+    float jumpBoolTimer, _jumpBoolTimer, hitImpact = 20;
 
     Rigidbody2D rb;
     bool isGrounded, facingRight, jumpBool;
@@ -16,6 +17,8 @@ public class PlayerBehaviour : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        AudioSource = GetComponent<AudioSource>();
+        currentHealth = maxHealth;
         _moveSpeed = 50;
         jumpSpeed = 6;
         gravityMultiplier = 2.5f;
@@ -32,6 +35,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         InputHandler();
         ScreenBorders();
+        HealthBarHandler();
     }
 
     void FixedUpdate()
@@ -126,6 +130,12 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
+    void HealthBarHandler()
+    {
+        HealthBarBehaviour.maxHealth = maxHealth;
+        HealthBarBehaviour.currentHealth = currentHealth;
+    }
+
     void OnCollisionStay2D(Collision2D other)
     {
         if(other.gameObject.CompareTag("Ground"))
@@ -139,6 +149,16 @@ public class PlayerBehaviour : MonoBehaviour
         if(other.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.gameObject.CompareTag("Enemy"))
+        {
+            currentHealth -= 10;
+            rb.AddForce(hitImpact * (Vector3.right * (transform.position.x - other.transform.position.x)).normalized + 0.2f * Vector3.up, ForceMode2D.Impulse);
+            AudioSource.Play();
         }
     }
 }

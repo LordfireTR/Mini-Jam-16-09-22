@@ -6,6 +6,7 @@ public class SpearBehaviour : MonoBehaviour
 {
     Collider2D spearCollider;
     [SerializeField] Rigidbody2D playerRb;
+    [SerializeField] float hitImpact;
 
     Vector3 spearOffset;
     float baseDamage = 10, attackTime, _attackTime = 0.15f, inputTime, _inputTime;
@@ -73,9 +74,10 @@ public class SpearBehaviour : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            float relativeVelocity = other.gameObject.GetComponent<Rigidbody2D>().velocity.x - playerRb.velocity.x;
-            other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage * Mathf.Abs(1 - relativeVelocity / 4.0f));
-            Debug.Log("dmg mult: " + Mathf.Abs(1 - relativeVelocity / 4.0f) + " relative vel: " + relativeVelocity);
+            float relativeVelocity = (other.gameObject.GetComponent<Rigidbody2D>().velocity.x - playerRb.velocity.x) * Mathf.Sign(transform.position.x - other.transform.position.x);
+            Debug.Log(relativeVelocity);
+            other.gameObject.GetComponent<EnemyBehaviour>().TakeDamage(baseDamage * Mathf.Abs(1 + relativeVelocity / 4.0f));
+            other.gameObject.GetComponent<Rigidbody2D>().AddForce(hitImpact * ((Vector3.right * (other.transform.position.x - transform.position.x)).normalized + 0.2f * Vector3.up), ForceMode2D.Impulse);
         }
     }
 }
